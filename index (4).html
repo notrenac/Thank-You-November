@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thank You November</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Carlito:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: camp field-board — sticky tab bar, one working view at a time, week tabs inside Challenges */
+:root{
+  --bg:#ffffff; --surface:#ffffff; --ink:#1b1d33; --muted:#5c6080; --line:#e1e5f7;
+  --peri:#c4cdff; --peri-soft:#eef1ff; --blue:#5167df; --teal:#45cab2; --on-accent:#ffffff;
+  --lilac:var(--blue); --lilac-soft:var(--peri-soft); --blue-soft:var(--peri-soft);
+  --good:#1f8f7c; --warn:#b26b00;
+  --f-display:Georgia,"Times New Roman",serif;
+  --f-body:Calibri,Carlito,"Segoe UI",sans-serif;
+  --f-button:"Fjalla One","Arial Narrow",sans-serif;
+  --f-mono:Calibri,Carlito,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.55 var(--f-body)}
+b,strong{font-family:var(--f-display);font-weight:700;letter-spacing:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--blue)}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{background:var(--blue);color:var(--on-accent);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+header .wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:12px}
+.logo{font:700 22px/1 var(--f-display)}
+.logo span{color:var(--peri)}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav button{background:none;border:0;color:inherit;opacity:.7;font:400 15px var(--f-button);letter-spacing:.03em;padding:8px 10px;border-radius:6px;cursor:pointer}
+nav button[aria-current="true"]{opacity:1;background:color-mix(in srgb,var(--on-accent) 18%,transparent);box-shadow:inset 0 -2px 0 var(--teal)}
+nav button:hover{opacity:1}
+.who{font:500 12px var(--f-mono);opacity:.8;width:100%;text-align:right}
+main{padding-block:28px 64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.01em}
+h1{font-size:clamp(27px,4.6vw,40px);line-height:1.12;font-weight:700}
+h2{font-size:22px}
+h3{font-size:17px}
+p{margin:0;max-width:65ch}
+.stack{display:flex;flex-direction:column;gap:16px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:20px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+.eyebrow{font:700 12px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.muted{color:var(--muted)}
+label{font-weight:400;font-size:14px;display:flex;flex-direction:column;gap:6px}
+input[type=text],input[type=password],input[type=number],textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%}
+input:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}
+.row>*{flex:1 1 160px;min-width:0}
+.btn{font:400 16px var(--f-button);letter-spacing:.03em;background:var(--blue);color:var(--on-accent);border:0;border-radius:6px;padding:11px 18px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--blue);border:1px solid var(--blue)}
+.btn.small{padding:6px 12px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.member{border:1px dashed var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.member .eyebrow{display:flex;justify-content:space-between;align-items:center}
+.linkbtn{background:none;border:0;color:var(--blue);font:400 14px var(--f-button);letter-spacing:.03em;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.toggle button{background:none;border:0;padding:8px 14px;font:400 14px var(--f-button);letter-spacing:.03em;color:var(--muted);cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--peri);color:var(--ink)}
+.msg{font-size:14px;min-height:1.4em}
+.msg.err{color:#c0392b}.msg.ok{color:var(--good)}
+.weeks{display:flex;gap:8px;flex-wrap:wrap}
+.weeks button{flex:1 1 150px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer;color:var(--ink)}
+.weeks button b{display:block;font:700 17px var(--f-display)}
+.weeks button small{font:700 11px var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.weeks button[aria-pressed="true"]{border-color:var(--blue);background:var(--peri-soft);box-shadow:inset 0 -3px 0 var(--teal)}
+.weeks button.locked{opacity:.55}
+.ch{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:18px 0;border-top:1px solid var(--line)}
+.ch:first-child{border-top:0}
+.num{font:400 30px/1 var(--f-display);color:var(--blue)}
+.ch-body{display:flex;flex-direction:column;gap:10px;min-width:0}
+.oath{background:var(--blue-soft);border-radius:6px;padding:10px 12px;font-size:14px;display:flex;gap:8px;align-items:flex-start}
+.oath input{margin-top:4px}
+.chip{display:inline-block;font:500 12px var(--f-mono);padding:3px 8px;border-radius:999px;background:var(--lilac-soft);color:var(--ink)}
+.chip.good{background:color-mix(in srgb,var(--teal) 28%,transparent)}
+.chip.worth{background:var(--blue);color:var(--on-accent)}
+.chip.warn{background:color-mix(in srgb,var(--warn) 20%,transparent)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumb{width:84px;height:84px;border-radius:6px;object-fit:cover;border:1px solid var(--line);background:var(--bg)}
+.filetag{font:500 12px var(--f-mono);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{text-align:left;font:700 12px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.pts{font:400 24px var(--f-display);text-align:right}
+.rank{font:400 22px var(--f-display);color:var(--muted);width:40px}
+tr.top .rank{color:var(--teal)}
+.sub{display:grid;grid-template-columns:1fr auto;gap:12px;padding:14px 0;border-top:1px solid var(--line);align-items:start}
+.sub:first-child{border-top:0}
+.sub .meta{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sub .meta .chip{align-self:flex-start}
+.group{border-top:2px solid var(--peri);padding-top:14px;margin-top:18px;scroll-margin-top:120px}
+.group:first-of-type{margin-top:6px}
+.ghead{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.ghead .num{font-size:24px}
+.ghead h3{flex:1 1 220px;min-width:0}
+.jump{display:flex;gap:6px;flex-wrap:wrap}
+.staged{display:flex;flex-direction:column;gap:6px}
+.staged div{display:flex;gap:8px;align-items:center;font-size:14px;min-width:0}
+.staged span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+a.filetag{color:var(--blue);text-decoration:none}
+a.filetag:hover{text-decoration:underline}
+.score{display:flex;gap:6px;align-items:center}
+.score input{width:80px}
+ol.rules li{font-family:var(--f-display);letter-spacing:0}
+ol.rules{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;max-width:65ch}
+.note{font-size:13px;color:var(--muted)}
+@media (max-width:560px){.sub{grid-template-columns:1fr}.ch{grid-template-columns:32px 1fr}}
+@media (prefers-reduced-motion:no-preference){.view{animation:in .18s ease-out}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:14px}
+.card{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.card .who2{font:700 17px var(--f-display)}
+select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:9px 10px}
+.idcheck{font-size:13px;color:var(--good);min-height:1.3em}
+.idcheck.bad{color:#c0392b}
+.pair{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:12px}
+@media (max-width:480px){.pair{grid-template-columns:1fr}}
+.youbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--peri-soft);border-radius:10px;padding:12px 16px}
+.youbar p{flex:1 1 240px}
+a.btn{display:inline-block;text-decoration:none;text-align:center}
+.btn.off{background:var(--line);color:var(--muted);cursor:default}
+.sheet{width:100%;height:520px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.sample{border:1px dashed var(--peri);border-radius:10px;padding:4px 16px 12px}
+.formwrap{display:flex;flex-direction:column;gap:12px}
+.gform{width:100%;height:1100px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;max-width:65ch}
+.lbhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.lbcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:0;padding:6px 0;list-style:none}
+.lbmsg{padding:28px 20px;text-align:center}
+.lbrow{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 20px;border-top:1px solid var(--line)}
+.lbrow:first-child{border-top:0}
+.lbrank{font:700 26px/1 var(--f-display);color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.lbname{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lbname b{font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbbar{height:6px;border-radius:3px;background:var(--peri-soft);overflow:hidden}
+.lbbar span{display:block;height:100%;background:var(--peri);border-radius:3px}
+.lbpts{font:700 26px/1 var(--f-display);font-variant-numeric:tabular-nums;text-align:right}
+.lbpts small{font:400 13px var(--f-body);color:var(--muted);margin-left:4px}
+.podium .lbrank{color:var(--on-accent);background:var(--blue);border-radius:50%;width:44px;height:44px;display:grid;place-items:center;font-size:22px;justify-self:center}
+.podium.p1 .lbrank{background:var(--teal)}
+.podium.p1{background:color-mix(in srgb,var(--teal) 10%,transparent)}
+.podium.p1 .lbbar span{background:var(--teal)}
+.podium.p1 .lbname b{font-size:21px}
+.podium.p3 .lbrank{background:var(--peri);color:var(--ink)}
+@media (max-width:480px){.lbrow{grid-template-columns:44px minmax(0,1fr) auto;padding:12px 14px;gap:10px}.podium .lbrank{width:36px;height:36px;font-size:18px}.lbpts{font-size:22px}}
+.lbsearch input{font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:12px 18px 12px 42px;width:100%;max-width:420px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%235c6080' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='8' cy='8' r='6'/%3E%3Cpath d='m13 13 4 4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:16px center}
+.lbsearch input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+mark{background:var(--peri);color:var(--ink);border-radius:3px;padding:0 1px}
+.subform{display:flex;flex-direction:column;gap:14px;max-width:640px}
+.subform .opt{font-weight:400;color:var(--muted);font-size:13px}
+.subform label.check{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;background:var(--peri-soft);border-radius:8px;padding:12px 14px}
+.subform label.check input{margin-top:4px;width:18px;height:18px;accent-color:var(--blue)}
+.subform input[type=url],.subform input[type=email]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%}
+.subform .btn{align-self:flex-start;padding:12px 28px}
+.done{border:2px solid var(--teal);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="logo">Thank You <span>November</span></div>
+  <nav id="nav">
+    <button data-v="rules">Rules</button>
+    <button data-v="challenges">Challenges</button>
+    <button data-v="board">Leaderboard</button>
+  </nav>
+</div></header>
+
+<main class="wrap" id="app"></main>
+
+<script>
+/* ================================================================
+   LINKS FROM GOOGLE — fill these in (Claude can do it for you).
+   For the submission form, send a "pre-filled link" with a challenge
+   picked, so its entry.123456 code can be copied here.
+   ================================================================ */
+const CONFIG={
+  // Google Sheet tabs, from File > Share > Publish to web > Embed (just the src="..." link)
+  weekEmbed:"https://docs.google.com/spreadsheets/d/e/2PACX-1vTy4vaQPTDKZyzJe0V69nSqAgGVIvj4ipfup1U_Imw2DNal4jwnRydsbIC3vSd8s11ZNbLpGJ8N9NkI/pubhtml?gid=76744142&single=true&widget=true&headers=false",              // "This week" tab
+  totalEmbed:"https://docs.google.com/spreadsheets/d/e/2PACX-1vTy4vaQPTDKZyzJe0V69nSqAgGVIvj4ipfup1U_Imw2DNal4jwnRydsbIC3vSd8s11ZNbLpGJ8N9NkI/pubhtml?gid=1230689050&single=true&widget=true&headers=false"              // "All weeks" tab
+};
+// One form per week (one Drive folder link per submission). Shown embedded at the bottom of that week.
+const WEEK_FORMS={
+  1:"https://docs.google.com/forms/d/e/1FAIpQLSe1LL6f_SFtOoZfC3tUHDsnAVRDaUzHw8t6Mwf3dwcir63iHg/viewform",
+  2:"https://docs.google.com/forms/d/e/1FAIpQLSfst1le9yCIY-iQMzQtcqM2-Zal3Coezk6QZIEbJFc10TRCoA/viewform",
+  3:"https://docs.google.com/forms/d/e/1FAIpQLSc0zu-BC7kgnRqcdFOT8QzWjm4-MUYfs-9SUeVMlhgraH-I8A/viewform", // forms.gle/7pNhFd47rj2zcTZy8
+  4:"https://docs.google.com/forms/d/e/1FAIpQLSftvspoML3Is85gAm4Su2Qz8DoG4Z_BPOPTYVWCxvFcPAK76w/viewform"  // forms.gle/AFWgfPxZ9qBjoT1k8
+};
+// Question codes from each week's pre-filled link. A week listed here gets the
+// custom form on the website; other weeks show the embedded Google Form.
+const WEEK_FIELDS={
+  1:{studentId:"entry.1966920998", partnerId:"entry.1674697587", username:"entry.426112189", folder:"entry.417472507"},
+  2:{studentId:"entry.1966920998", partnerId:"entry.1199728318", username:"entry.426112189", folder:"entry.417472507"},
+  3:{studentId:"entry.1966920998", partnerId:"entry.72983351",   username:"entry.426112189", folder:"entry.417472507"},
+  4:{studentId:"entry.1966920998", partnerId:"entry.72983351",   username:"entry.426112189", folder:"entry.417472507"}
+};
+const CURRENT_WEEK=1;
+
+// "code" must match the Google Form's challenge dropdown options exactly.
+const WEEKS=[
+ {n:1,theme:"Throwback",items:[
+  {code:"W1-1",t:"Get to “Genius” in the NYT Spelling Bee",d:"Screenshot your Genius rank.",oath:"will not cheat",pts:150},
+  {code:"W1-2",t:"Hold up a food item in another language",d:"Go to a restaurant or store and hold up a food item that's labeled in another language.",pts:100},
+  {code:"W1-3",t:"Learn 15 seconds of a K-pop dance and song",d:"Perform both the dance and the song.",pts:200},
+  {code:"W1-4",t:"Write a full page of roast lines",d:"Lines you'd use in a rap/roast battle against your ScioVirtual friends or instructors. It can be as mean as you want; there's no limit. Bonus if you make them science-related!",pts:150},
+  {code:"W1-5",t:"Play the Subway Surfers theme on an instrument",d:"Scoring varies based on difficulty.",pts:150}]},
+ {n:2,theme:"Science",items:[
+  {code:"W2-1",t:"Model a scientific phenomenon",d:"",pts:200},
+  {code:"W2-2",t:"Make a Rube Goldberg machine",d:"Mission Possible vibe. The most complex one, or the one that does the coolest thing, gets its score doubled.",pts:200},
+  {code:"W2-3",t:"Explain the science behind a food, then bake or cook it",d:"",pts:150},
+  {code:"W2-4",t:"Build a paper bridge that holds as much weight as possible",d:"Send a video of testing it until it fails, plus how much weight was on it.",pts:100},
+  {code:"W2-5",t:"Create a short comic explaining a scientific principle",d:"",pts:100}]},
+ {n:3,theme:"Art · Craft · Creative",items:[
+  {code:"W3-1",t:"Make art of a ScioVirtual director",d:"A painting, sketch, or structure with actual effort and actual art. Explain at least 3 things it represents about them, physically or mentally. Points are deducted as judged for low effort.",pts:250},
+  {code:"W3-2",t:"Write a poem or make a meme about ScioVirtual",d:"",pts:50},
+  {code:"W3-3",t:"Learn how to make an origami envelope",d:"This will be part of the last week's challenge!",pts:100},
+  {code:"W3-4",t:"Write a short story about a ScioVirtual director or instructor",d:"Minimum 1 page.",pts:150},
+  {code:"W3-5",t:"Make an aesthetic color hunt collage",d:"Use two colors from the ScioCamp logo: light purple/blue and black/grey.",pts:200}]},
+ {n:4,theme:"Thanksgiving",items:[
+  {code:"W4-1",t:"Compliment strangers",d:"Compliment as many people as you can outside and record/edit it into one video. Bonus points if it's in multiple different locations.",pts:"200+"},
+  {code:"W4-2",t:"Hold the door for as many people as you can",d:"Write down how many people you did it for, or better yet, record it.",oath:"will not lie or exaggerate about this",pts:200},
+  {code:"W4-3",t:"Make an origami envelope and give it away",d:"Make it as creative and artistic as possible, write a kind message in it, and give it to a relative or friend.",pts:150},
+  {code:"W4-4",t:"Send a truly sincere letter to your favorite director",d:"Send us a screenshot of their reaction.",pts:200},
+  {code:"W4-5",t:"Create a PSA about being thankful",d:"Best-directed, highest-quality video gets bonus points!",pts:250}]}
+];
+
+// Example rows shown only until the Google Sheet embeds are pasted in.
+
+// ---------- helpers ----------
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ready=v=>typeof v==="string"&&/^https:\/\//.test(v);
+function prefill(base,entries,values){
+  if(!ready(base))return null;
+  const u=new URL(base.replace(/\/(edit|formResponse)(\?.*)?$/,"/viewform"));
+  u.searchParams.set("usp","pp_url");
+  for(const k in values){const e=entries[k];if(e&&values[k])u.searchParams.set(e,values[k])}
+  return u.toString();
+}
+let view="challenges", week=CURRENT_WEEK, period="week", lbQuery="";
+function go(v){view=v;render();window.scrollTo(0,0)}
+$("#nav").onclick=e=>{const b=e.target.closest("button");if(b)go(b.dataset.v)};
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go)});
+function render(){
+  document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.v===view));
+  $("#app").innerHTML=`<div class="view">${V[view]()}</div>`;
+  B[view]?.();
+}
+const weekTabs=sub=>`<div class="weeks">${WEEKS.map(w=>`<button data-w="${w.n}" aria-pressed="${w.n===week}" class="${w.n>CURRENT_WEEK?"locked":""}"><small>Week ${w.n} · ${sub(w)}</small><b>${esc(w.theme)}</b></button>`).join("")}</div>`;
+const weekBind=()=>document.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{week=+b.dataset.w;render()});
+const embed=(src,title)=>`<iframe class="sheet" src="${esc(src)}" title="${esc(title)}" loading="lazy"></iframe>`;
+
+const sent={}; // week -> {username} after a successful send (this visit only)
+const subDraft={}; // week -> field values, kept if the page re-renders
+function subForm(n){const d=subDraft[n]||{};return `<form class="subform" id="subForm" data-week="${n}" novalidate>
+  <div class="pair">
+    <label>Summer 2026 student ID<input type="text" id="f_sid" value="${esc(d.sid||"")}" placeholder="23RC9026" required autocomplete="off"></label>
+    <label><span>Partner's student ID <span class="opt">(if you have one)</span></span><input type="text" id="f_pid" value="${esc(d.pid||"")}" placeholder="Leave blank if solo" autocomplete="off"></label>
+  </div>
+  <label>Email<input type="email" id="f_email" value="${esc(d.email||"")}" placeholder="you@example.com" required autocomplete="email"></label>
+  <label><span>Username or team name <span class="opt">(shown on the leaderboard)</span></span><input type="text" id="f_user" value="${esc(d.user||"")}" placeholder="Use the same one every week" required></label>
+  <label>Google Drive folder link<input type="url" id="f_folder" value="${esc(d.folder||"")}" placeholder="https://drive.google.com/drive/folders/..." required></label>
+  <label class="check"><input type="checkbox" id="f_shared" ${d.shared?"checked":""} required> <span>My folder is shared so <b>anyone with the link can view</b>.</span></label>
+  <div class="msg" id="f_msg" role="status"></div>
+  <button class="btn" id="f_btn">Submit Week ${n}</button>
+</form>`}
+function sentPanel(n){const v=sent[n];return `<div class="done" role="status">
+  <h2>Sent! Thanks, ${esc(v.username)}.</h2>
+  <p>Your Week ${n} folder is in. Directors will go through it and your points will show on the leaderboard once it's graded.</p>
+  <p class="note">You can add more files to the same folder until the week closes. No need to submit again.</p>
+  <button class="linkbtn" id="f_again" style="align-self:flex-start">Submit a different folder</button>
+</div>`}
+async function sendForm(n){
+  const msg=$("#f_msg"),btn=$("#f_btn"),fail=t=>{msg.className="msg err";msg.textContent=t};
+  const v={email:$("#f_email").value.trim(),sid:$("#f_sid").value.trim(),pid:$("#f_pid").value.trim(),user:$("#f_user").value.trim(),folder:$("#f_folder").value.trim(),shared:$("#f_shared").checked};
+  subDraft[n]=v;
+  if(!v.sid)return fail("Add your student ID.");
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email))return fail("Add your email address.");
+  if(!v.user)return fail("Add a username or team name for the leaderboard.");
+  if(!/^https:\/\/\S+\.\S+/.test(v.folder))return fail("Paste your folder link. It should start with https://");
+  if(!v.shared)return fail("Share your folder so anyone with the link can view, then tick the box.");
+  if(v.pid&&v.pid.toUpperCase()===v.sid.toUpperCase())return fail("Your partner's ID can't be the same as yours.");
+  const F=WEEK_FIELDS[n],body=new URLSearchParams();
+  body.set(F.studentId,v.sid);body.set(F.partnerId,v.pid);body.set(F.username,v.user);body.set(F.folder,v.folder);body.set("emailAddress",v.email);
+  const url=WEEK_FORMS[n].replace(/\/viewform.*$/,"/formResponse");
+  btn.disabled=true;btn.textContent="Sending…";msg.className="msg";msg.textContent="";
+  try{
+    await fetch(url,{method:"POST",mode:"no-cors",body});
+    sent[n]={username:v.user};delete subDraft[n];render();
+    $("#submit")?.scrollIntoView({block:"start"});
+  }catch(e){btn.disabled=false;btn.textContent=`Submit Week ${n}`;fail("Couldn't send it. Check your internet connection and try again, or use the Google Form link below.")}
+}
+const V={
+rules(){
+  return `<div class="stack">
+  <span class="eyebrow">How it works</span><h1>Rules</h1>
+  <ol class="rules">
+    <li><b>Play solo or in a team of two.</b> There's no sign-up. Just submit with your student ID. To compete with a partner, add their student ID and a team name on the weekly form, and use the same team name every week. Your team name is what appears on the leaderboard, and only one teammate needs to submit.</li>
+    <li><b>A new theme every week.</b> Week 1 Throwback, Week 2 Science, Week 3 Art · Craft · Creative, Week 4 Thanksgiving. Each week has five challenges.</li>
+    <li><b>Submit as many as you can.</b> Put all your entries for the week in one Google Drive folder, share it so anyone with the link can view, and send the folder link through that week's form. You can keep adding to the folder until the week closes.</li>
+    <li><b>Scoring works like GooseChase.</b> Directors review submissions and award points. The leaderboard updates as we watch your videos, so it won't change instantly.</li>
+    <li><b>Some challenges need an honesty pledge.</b> Check the statement before submitting. Breaking it means losing those points.</li>
+    <li><b>Effort counts.</b> Low-effort art or rushed submissions can lose points. Bonus points go to creative, high-quality, or extra-mile entries.</li>
+    <li><b>Weekly prize: a Director Dare.</b> We write the dare, the week's winner chooses which director has to do it.</li>
+    <li><b>Overall winner</b> picks any director for any dare.</li>
+  </ol></div>`;
+},
+challenges(){
+  const W=WEEKS[week-1],open=week===CURRENT_WEEK,wf=open&&ready(WEEK_FORMS[week])?WEEK_FORMS[week]:null;
+  const list=W.items.map((c,i)=>{
+    const link=prefill(CONFIG.submitForm,CONFIG.submitEntries,{challenge:c.code});
+    const btn=wf?"":!open?`<span class="note">${week>CURRENT_WEEK?"Opens in Week "+week:"Closed"}</span>`
+      :link?`<a class="btn small" href="${esc(link)}" target="_blank" rel="noopener">Submit</a>`
+      :`<span class="btn small off" title="The submission form isn't connected yet">Submit (link coming soon)</span>`;
+    return `<div class="ch"><div class="num">${i+1}</div><div class="ch-body">
+      <div class="row" style="align-items:center"><h3 style="flex:1 1 260px">${esc(c.t)}</h3><div style="flex:0 0 auto"><span class="chip worth">${c.pts} pts</span></div></div>
+      ${c.d?`<p class="muted">${esc(c.d)}</p>`:""}
+      ${c.oath?`<div class="oath"><span>Include this pledge in your entry: “I, [your name], ${esc(c.oath)}.”</span></div>`:""}
+      ${btn?`<div>${btn}</div>`:""}
+    </div></div>`}).join("");
+  return `<div class="stack">
+    <span class="eyebrow">ScioVirtual challenges</span>
+    <h1>Four weeks. Twenty challenges. One Director Dare per week.</h1>
+    <div class="youbar"><p>Play solo or with one teammate. No sign-up needed: do as many challenges as you can, then send them all through the form at the bottom of the week's list. Have your student ID ready, plus your teammate's ID and team name if you're on a team.</p></div>
+    ${weekTabs(w=>w.n===CURRENT_WEEK?"open now":w.n>CURRENT_WEEK?"upcoming":"closed")}
+    <div class="panel"><div class="row" style="align-items:center;margin-bottom:6px"><h2 style="flex:1 1 220px">Week ${W.n}: ${esc(W.theme)}</h2>${wf?`<a class="btn small" href="#submit" style="flex:0 0 auto">Go to the submission form</a>`:""}</div>${list}</div>
+    ${wf?(()=>{const u=new URL(wf);u.searchParams.set("embedded","true");const F=WEEK_FIELDS[W.n];return `<section class="panel formwrap" id="submit">
+      <h2>Submit your Week ${W.n} entries</h2>
+      <ol class="steps">
+        <li>Make one Google Drive folder with all your Week ${W.n} photos, videos and files. Name each file with its challenge number, like <b>1 Spelling Bee.png</b>.</li>
+        <li>Share the folder so <b>anyone with the link can view</b>.</li>
+        <li>Fill in the form ${F?"":"below "}with your Summer 2026 student ID, your partner's ID (if you have one), a username or team name for the leaderboard, and the folder link. On a team, only <b>one</b> teammate submits.</li>
+      </ol>
+      ${F?(sent[W.n]?sentPanel(W.n):subForm(W.n)):`<iframe class="gform" src="${esc(u.toString())}" title="Week ${W.n} submission form" loading="lazy">Loading…</iframe>`}
+      <p class="note">${F?"Having trouble? ":"Form not showing? "}<a href="${esc(wf)}" target="_blank" rel="noopener">${F?"Use the Google Form instead":"Open it in a new tab"}</a>.</p>
+    </section>`})():""}</div>`;
+},
+board(){
+  const wk=period==="week";
+  const label=wk?`Week ${CURRENT_WEEK}: ${WEEKS[CURRENT_WEEK-1].theme}`:CURRENT_WEEK===1?"All 4 weeks (Week 1 so far)":`All 4 weeks (Weeks 1 to ${CURRENT_WEEK} so far)`;
+  return `<div class="stack">
+    <span class="eyebrow">Updated as directors review submissions</span><h1>Leaderboard</h1>
+    <div class="row" style="align-items:center">
+      <div class="toggle" role="group" aria-label="Time period" style="flex:0 0 auto">
+        <button data-p="week" aria-pressed="${wk}">This week</button>
+        <button data-p="total" aria-pressed="${!wk}">All 4 weeks</button>
+      </div>
+    </div>
+    <div class="lbhead"><h2>${esc(label)}</h2><span class="note" id="lbtime"></span></div>
+    <div class="lbsearch"><label for="lbq" class="sr">Search the leaderboard</label><input type="search" id="lbq" placeholder="Search for your username or team name" value="${esc(lbQuery)}" autocomplete="off"></div>
+    <div id="lb">${boardBody(period)}</div>
+    <p class="note">${wk?"The top spot each week wins that week's Director Dare.":"The top spot after Week 4 is the overall winner and picks any director for any dare."} Teams and solo players are ranked together. Scores can take a few minutes to show up.</p></div>`;
+}};
+
+// ---------- live leaderboard from the published Google Sheet ----------
+// Turns a "Publish to web" embed link into the same tab's data (CSV) link.
+function csvUrl(embed){
+  if(!ready(embed))return null;
+  try{const u=new URL(embed);const gid=u.searchParams.get("gid");
+    return u.origin+u.pathname.replace(/\/pubhtml$/,"/pub")+`?gid=${gid}&single=true&output=csv`}catch(e){return null}
+}
+function parseCSV(t){
+  const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;
+    else if(c===","){row.push(f);f=""}
+    else if(c==="\n"||c==="\r"){if(c==="\r"&&t[i+1]==="\n")i++;row.push(f);rows.push(row);row=[];f=""}
+    else f+=c}
+  if(f!==""||row.length){row.push(f);rows.push(row)}
+  return rows;
+}
+const LB={}; // period -> {state:"loading"|"ok"|"error", rows, at}
+function boardBody(p){
+  const d=LB[p],src=p==="week"?CONFIG.weekEmbed:CONFIG.totalEmbed;
+  if(!d||d.state==="loading")return `<div class="lbcard"><p class="muted lbmsg">Loading scores…</p></div>`;
+  if(d.state==="error")return `<div class="lbcard"><p class="muted lbmsg">Couldn't load the scores right now. Refresh the page in a minute${ready(src)?`, or <a href="${esc(src)}" target="_blank" rel="noopener">open the scoreboard sheet</a>`:""}.</p></div>`;
+  if(!d.rows.length)return `<div class="lbcard"><p class="muted lbmsg">No scores yet. Check back once directors start grading.</p></div>`;
+  let rank=0,prev=null;
+  const max=Math.max(...d.rows.map(r=>r.p),1);
+  const ranked=d.rows.map((r,i)=>{if(r.p!==prev){rank=i+1;prev=r.p}return {...r,rank}});
+  const q=lbQuery.trim().toLowerCase();
+  const shown=q?ranked.filter(r=>r.name.toLowerCase().includes(q)):ranked;
+  if(!shown.length)return `<div class="lbcard"><p class="muted lbmsg">No one called “${esc(lbQuery.trim())}” on this leaderboard yet. Check the spelling, or try part of the name.</p></div>`;
+  const hl=n=>{if(!q)return esc(n);const k=n.toLowerCase().indexOf(q);return esc(n.slice(0,k))+"<mark>"+esc(n.slice(k,k+q.length))+"</mark>"+esc(n.slice(k+q.length))};
+  return `${q?`<p class="note">${shown.length} of ${ranked.length} shown</p>`:""}<ol class="lbcard lblist">${shown.map(r=>{const rank=r.rank;
+    return `<li class="lbrow ${rank<=3?"podium p"+rank:""}">
+      <span class="lbrank">${rank}</span>
+      <span class="lbname"><b>${hl(r.name)}</b><span class="lbbar"><span style="width:${Math.max(4,Math.round(r.p/max*100))}%"></span></span></span>
+      <span class="lbpts">${r.p}<small>pts</small></span>
+    </li>`}).join("")}</ol>`;
+}
+async function loadBoard(p){
+  const url=csvUrl(p==="week"?CONFIG.weekEmbed:CONFIG.totalEmbed);
+  if(!url){LB[p]={state:"error"};return}
+  if(!LB[p])LB[p]={state:"loading"};
+  try{
+    const res=await fetch(url,{cache:"no-store"});
+    if(!res.ok)throw new Error(res.status);
+    const rows=parseCSV(await res.text()).slice(1)
+      .map(r=>({name:(r[0]||"").trim(),p:Number(String(r[1]||"").replace(/[^0-9.\-]/g,""))}))
+      .filter(r=>r.name&&r.name!=="#N/A"&&Number.isFinite(r.p))
+      .sort((a,b)=>b.p-a.p||a.name.localeCompare(b.name));
+    LB[p]={state:"ok",rows,at:new Date()};
+  }catch(e){if(!LB[p]||LB[p].state!=="ok")LB[p]={state:"error"}}
+}
+async function refreshBoard(){
+  const p=period;await loadBoard(p);
+  if(view==="board"&&period===p){const el=$("#lb");if(el)el.innerHTML=boardBody(p);
+    const t=$("#lbtime");if(t&&LB[p].at)t.textContent="Updated "+LB[p].at.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}
+}
+setInterval(()=>{if(view==="board"&&!document.hidden)refreshBoard()},120000);
+
+
+const B={
+ challenges(){weekBind();
+  const f=$("#subForm");if(f)f.onsubmit=e=>{e.preventDefault();sendForm(+f.dataset.week)};
+  $("#f_again")?.addEventListener("click",()=>{delete sent[week];render()})},
+ board(){document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{period=b.dataset.p;render()});
+  $("#lbq").oninput=e=>{lbQuery=e.target.value;$("#lb").innerHTML=boardBody(period)};
+  refreshBoard()}
+};
+render();
+</script>
+
+</body>
+</html>
